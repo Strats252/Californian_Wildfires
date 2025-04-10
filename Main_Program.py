@@ -28,7 +28,7 @@ fig, ax = plt.subplots(figsize=(12, 10))
 gdf_counties.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=0.5)
 gdf_BUA.plot(ax=ax, color='grey', alpha=0.5)
 gdf_highway.plot(ax=ax, color='green', linewidth=1.0)
-gdf_fires.plot(ax=ax, edgecolor='red', facecolor='red', linewidth=0.5)
+gdf_fires.plot(ax=ax, edgecolor='black', facecolor='red', linewidth=0.5)
 
 # Manually add legend patches
 legend_elements = [
