@@ -1,0 +1,12 @@
+name: California_Wildfires
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - geopandas
+  - cartopy
+  - notebook
+  - rasterio
+  - rasterstats
+prefix: C:\Users\danie\Anaconda3\envs\California_Wildfires
