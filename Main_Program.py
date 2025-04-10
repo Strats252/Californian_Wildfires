@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 # Load shapefiles
-counties_path = "Base_Data/California_County_Boundaries_and_Identifiers.shp"
+counties_path = "Base_Data/California_County_Boundaries_and_Identifiers_pro.shp"
 BUA_path = "Base_Data/2020_Adjusted_Urban_Area.shp"
 highway_path = "Base_Data/Interstate_Road.shp"
 
@@ -31,6 +31,11 @@ legend_elements = [
     mpatches.Patch(color='grey', alpha=0.5, label='Urban Area'),
     mpatches.Patch(color='green', label='Highway'),
 ]
+
+# Manually set display extent
+bounds = gdf_counties.total_bounds
+ax.set_xlim([-124.48146, -119.87385])
+ax.set_ylim([36.020764, 40.248248])
 
 plt.legend(handles=legend_elements)
 
