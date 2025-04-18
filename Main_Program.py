@@ -24,8 +24,9 @@ if gdf_fires.crs != target_crs:
 
 # Plot all shapefiles
 fig, ax = plt.subplots(figsize=(12, 10))
+ax.set_facecolor('lightblue') # This set the background colour to the map face
 
-gdf_counties.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=0.5)
+gdf_counties.plot(ax=ax, edgecolor='black', facecolor='grey', linewidth=0.5)
 gdf_BUA.plot(ax=ax, color='grey', alpha=0.5)
 gdf_highway.plot(ax=ax, color='green', linewidth=1.0)
 gdf_fires.plot(ax=ax, edgecolor='black', facecolor='red', linewidth=0.5)
