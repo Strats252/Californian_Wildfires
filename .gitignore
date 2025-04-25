@@ -1,4 +1,5 @@
 # Byte-compiled / optimized / DLL files
+# Ensures that unnecessary, temporary or specific environment specific files are not included in the version controlled code base.
 __pycache__/
 *.py[cod]
 *$py.class
