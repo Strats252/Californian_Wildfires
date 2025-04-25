@@ -1,3 +1,4 @@
+# Environment file to be imported into Ananaconda which is required to run any script
 name: California_Wildfires
 channels:
   - conda-forge
