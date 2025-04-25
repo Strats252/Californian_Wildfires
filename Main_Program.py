@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 import rasterio
 from rasterio.transform import from_bounds
+from IPython.display import Image as IPImage, display
 
 # --------------------------------------------------
 # Load Spatial Data (Shapefiles)
@@ -35,7 +36,6 @@ gdf_fires = gdf_fires.to_crs(target_crs)
 # --------------------------------------------------
 # Define the Geographic Extent of the printed map
 # --------------------------------------------------
-# This focuses the map on a region in Northern California
 xmin, xmax = -124.48146, -119.87385
 ymin, ymax = 36.020764, 40.248248
 
@@ -51,9 +51,9 @@ gdf_BUA.plot(ax=ax, color='grey', alpha=0.5)
 gdf_highway.plot(ax=ax, color='green', linewidth=1.0)
 gdf_fires.plot(
     ax=ax,
-    column='GIS_ACRES',         # Color fires by acreage
-    cmap='OrRd',                # Orange-Red color map
-    legend=True,                # Show legend for fire sizes
+    column='GIS_ACRES',
+    cmap='OrRd',
+    legend=True,
     edgecolor='black',
     linewidth=0.5
 )
@@ -65,7 +65,7 @@ ax.set_ylim([ymin, ymax])
 # --------------------------------------------------
 # Add County Labels (inside the defined extent)
 # --------------------------------------------------
-label_column = 'CDT_NAME_S'  # County name column
+label_column = 'CDT_NAME_S'
 for _, row in gdf_counties.iterrows():
     centroid = row.geometry.centroid
     if xmin <= centroid.x <= xmax and ymin <= centroid.y <= ymax:
@@ -94,24 +94,21 @@ plt.ylabel("Latitude")
 plt.tight_layout()
 
 # --------------------------------------------------
-# Export Plot as Temporary PNG Image
+# Export Plot as PNG Image and Show Inline in Jupyter
 # --------------------------------------------------
-temp_image_path = "temp_image.png"
+temp_image_path = "California_Wildfires.png"
 fig.savefig(temp_image_path, dpi=300, bbox_inches='tight')
-plt.close(fig)  # Close the plot to free memory
+display(IPImage(filename=temp_image_path))  # Show inline in Jupyter
+plt.close(fig)
 
 # --------------------------------------------------
 # Convert PNG to GeoTIFF with Georeferencing
 # --------------------------------------------------
-# Open image and convert to numpy array
 img = Image.open(temp_image_path).convert("RGB")
 img_arr = np.array(img)
-
-# Create geospatial transform from bounds and image size
 height, width = img_arr.shape[:2]
 transform = from_bounds(xmin, ymin, xmax, ymax, width, height)
 
-# Save as a 3-band (RGB) GeoTIFF
 with rasterio.open(
     "california_wildfires_map.tif", "w",
     driver="GTiff",
@@ -123,6 +120,6 @@ with rasterio.open(
     transform=transform
 ) as dst:
     for i in range(3):
-        dst.write(img_arr[:, :, i], i + 1)  # Write R, G, B bands
+        dst.write(img_arr[:, :, i], i + 1)
 
 print("✅ GeoTIFF saved as 'california_wildfires_map.tif'")
