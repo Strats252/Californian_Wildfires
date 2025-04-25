@@ -33,7 +33,7 @@ gdf_highway = gdf_highway.to_crs(target_crs)
 gdf_fires = gdf_fires.to_crs(target_crs)
 
 # --------------------------------------------------
-# Define the Geographic Extent of the Map
+# Define the Geographic Extent of the printed map
 # --------------------------------------------------
 # This focuses the map on a region in Northern California
 xmin, xmax = -124.48146, -119.87385
