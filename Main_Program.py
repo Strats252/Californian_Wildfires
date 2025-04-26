@@ -13,7 +13,7 @@ from IPython.display import Image as IPImage, display
 # --------------------------------------------------
 # Load Landsat 8 OLI Image (Georeferenced)
 # --------------------------------------------------
-landsat_rgb_path = "C:/Users/danie/Data/Comp.tif"
+landsat_rgb_path = "C:/Users/danie/Data/Comp.tif" # change this to where you have saved your composite image from the downloaded imagery from USGS.
 
 # Open the Landsat RGB image
 with rasterio.open(landsat_rgb_path) as src:
@@ -62,38 +62,38 @@ gdf_highway = gpd.read_file(highway_path)
 gdf_fires = gpd.read_file(fires_path)
 
 # --------------------------------------------------
-# Reproject All Layers to UTM Zone 10N
+# Reproject All Layers to WGS84 (EPSG:4326)
 # --------------------------------------------------
-utm10n_crs = "EPSG:32610"
+wgs84_crs = "EPSG:4326"  # WGS84 for lat/lon
 
-gdf_counties = gdf_counties.to_crs(utm10n_crs)
-gdf_BUA = gdf_BUA.to_crs(utm10n_crs)
-gdf_highway = gdf_highway.to_crs(utm10n_crs)
-gdf_fires = gdf_fires.to_crs(utm10n_crs)
+gdf_counties = gdf_counties.to_crs(wgs84_crs)
+gdf_BUA = gdf_BUA.to_crs(wgs84_crs)
+gdf_highway = gdf_highway.to_crs(wgs84_crs)
+gdf_fires = gdf_fires.to_crs(wgs84_crs)
 
 # --------------------------------------------------
-# Define the Geographic Extent
+# Define the Geographic Extent (Latitude/Longitude)
 # --------------------------------------------------
-xmin, ymin = 460000, 4032000
-xmax, ymax = 682910, 4250000
+xmin, ymin = -125.0, 36.0  # (Longitude, Latitude) - Adjust as per your region should you wish to move AOI
+xmax, ymax = -119.0, 41.0  # (Longitude, Latitude) - Adjust as per your region should you wish to move AOI
 
 # --------------------------------------------------
 # Create the Map Plot
 # --------------------------------------------------
 fig, ax = plt.subplots(figsize=(12, 10))
-ax.set_facecolor('lightblue')
+ax.set_facecolor('none')
 
-# 1. Plot counties first (with olive fill and black borders)
+# 1. Plot counties first
 gdf_counties.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=0.5)
 
-# 2. Plot Landsat RGB (with alpha channel for transparency) **above counties**
+# 2. Plot Landsat RGB (with alpha channel for transparency) above counties
 ax.imshow(
-    landsat_rgba,  # Use RGBA to include the transparency
+    landsat_rgba,  # Use RGBA to include the transparency - A is the ALPHA without this the black still draws
     extent=(float(xmin), float(xmax), float(ymin), float(ymax)),
     origin='upper'
 )
 
-# 3. Plot the other layers (BUA, highways, fires) **above Landsat**
+# 3. Plot the other layers (BUA, highways, fires) above Landsat
 gdf_BUA.plot(ax=ax, color='grey', alpha=0.5)
 gdf_highway.plot(ax=ax, color='green', linewidth=1.0)
 gdf_fires.plot(
@@ -106,8 +106,8 @@ gdf_fires.plot(
 )
 
 # Set visible area
-ax.set_xlim([xmin, xmax])
-ax.set_ylim([ymin, ymax])
+ax.set_xlim([xmin, xmax])  # Longitude range
+ax.set_ylim([ymin, ymax])  # Latitude range
 
 # --------------------------------------------------
 # Add County Labels
@@ -135,9 +135,9 @@ legend_elements = [
 ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0))
 
 # Map title and axis labels
-plt.title("California Wildfires with Landsat Background (UTM Zone 10N)", fontsize=16)
-plt.xlabel("Easting (meters)")
-plt.ylabel("Northing (meters)")
+plt.title("California Wildfires with Landsat Background (WGS84)", fontsize=16)
+plt.xlabel("Longitude")
+plt.ylabel("Latitude")
 plt.tight_layout()
 
 # --------------------------------------------------
@@ -163,7 +163,7 @@ with rasterio.open(
         width=width,
         count=4,  # 4 channels: RGBA
         dtype=img_arr.dtype,
-        crs=utm10n_crs,
+        crs=wgs84_crs,
         transform=transform
 ) as dst:
     for i in range(4):  # Write 4 channels (RGBA)
