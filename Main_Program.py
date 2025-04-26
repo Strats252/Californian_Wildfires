@@ -36,8 +36,8 @@ gdf_fires = gdf_fires.to_crs(target_crs)
 # --------------------------------------------------
 # Define the Geographic Extent of the printed map
 # --------------------------------------------------
-xmin, xmax = -124.48146, -119.87385
-ymin, ymax = 36.020764, 40.248248
+xmin, xmax = -123.00000, -120.00000
+ymin, ymax = 37.00000, 39.50000
 
 # --------------------------------------------------
 # Create the Map Plot
