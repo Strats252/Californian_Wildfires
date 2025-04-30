@@ -16,6 +16,8 @@ This Python script overlays California wildfire data on top of Landsat 8 satelli
 
 ├── Base_Data/ │  California_County_Boundaries.shp │ Urban_Area.shp │ State_Highway.shp │ fires_50000.shp | Comp.tif # Landsat 8 RGB composite | wildfire_map_script.py |
 
+2 additonal files are generated once the script has been run. 
+
 # Main Python script 
 
 ---
