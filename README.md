@@ -8,7 +8,11 @@
 
 ##  INTRODUCTION
 
-This Python script overlays California wildfire data on top of Landsat 8 satellite imagery, including key vector layers like counties, urban areas, and highways. The final output is both a high-resolution PNG map and a **GeoTIFF** image, georeferenced and ready for GIS or remote sensing applications.
+This Python script overlays California wildfire data on top of Landsat 8 satellite imagery, including key vector layers like counties, urban areas, and highways. The final output is both a high-resolution PNG map and a **GeoTIFF** image, georeferenced and ready for GIS or remote sensing applications. The workflow for this script process can be seen below here with highlights the main steps to achieve the desired output:
+
+<p align="center">
+  <img width="477" alt="image" src="https://github.com/user-attachments/assets/fc46c7de-d2d9-47e1-9798-271dcedb1b3b" />
+</p>
 
 ---
 
