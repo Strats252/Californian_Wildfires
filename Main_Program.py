@@ -3,7 +3,6 @@
 # --------------------------------------------------
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import numpy as np
 from PIL import Image
 import rasterio
@@ -13,18 +12,15 @@ from IPython.display import Image as IPImage, display
 # --------------------------------------------------
 # Load Landsat 8 OLI Image (Georeferenced)
 # --------------------------------------------------
-landsat_rgb_path = "C:/Users/danie/Data/Comp.tif" # change this to where you have saved your composite image from the downloaded imagery from USGS.
+landsat_rgb_path = "C:/Users/danie/Data/Comp.tif"  # Update as needed
 
-# Open the Landsat RGB image
 with rasterio.open(landsat_rgb_path) as src:
     count = src.count
     if count >= 4:
-        landsat_rgb = src.read([4, 3, 2])  # Red, Green, Blue bands
+        landsat_rgb = src.read([4, 3, 2])  # Red, Green, Blue
     else:
         raise ValueError(f"Error: Landsat image has only {count} bands — need at least 4 (for R, G, B).")
-
-    landsat_rgb = np.transpose(landsat_rgb, (1, 2, 0))  # (rows, cols, bands)
-    landsat_extent = [src.bounds.left, src.bounds.right, src.bounds.bottom, src.bounds.top]
+    landsat_rgb = np.transpose(landsat_rgb, (1, 2, 0))
     landsat_crs = src.crs
 
 # --------------------------------------------------
@@ -33,7 +29,7 @@ with rasterio.open(landsat_rgb_path) as src:
 def normalize(array, gamma=1.2):
     array_min, array_max = np.percentile(array, (2, 98))
     scaled = np.clip((array - array_min) / (array_max - array_min), 0, 1)
-    scaled = scaled ** (1/gamma)  # Brighten
+    scaled = scaled ** (1 / gamma)
     return (scaled * 255).astype(np.uint8)
 
 landsat_rgb = np.dstack([normalize(landsat_rgb[:, :, i]) for i in range(3)])
@@ -41,15 +37,12 @@ landsat_rgb = np.dstack([normalize(landsat_rgb[:, :, i]) for i in range(3)])
 # --------------------------------------------------
 # Mask Black Background (Make Transparent)
 # --------------------------------------------------
-# Create an alpha channel: where all RGB values are near 0, make it transparent
-black_mask = np.all(landsat_rgb <= 5, axis=2)  # Tolerance of 5
+black_mask = np.all(landsat_rgb <= 5, axis=2)
 alpha_channel = np.where(black_mask, 0, 255).astype(np.uint8)
-
-# Add alpha to Landsat (ensure it has an alpha channel)
 landsat_rgba = np.dstack((landsat_rgb, alpha_channel))
 
 # --------------------------------------------------
-# Load Spatial Data (Shapefiles)
+# Load Spatial Data
 # --------------------------------------------------
 counties_path = "Base_Data/California_County_Boundaries.shp"
 BUA_path = "Base_Data/Urban_Area.shp"
@@ -62,9 +55,9 @@ gdf_highway = gpd.read_file(highway_path)
 gdf_fires = gpd.read_file(fires_path)
 
 # --------------------------------------------------
-# Reproject All Layers to WGS84 (EPSG:4326)
+# Reproject All Layers to WGS84
 # --------------------------------------------------
-wgs84_crs = "EPSG:4326"  # WGS84 for lat/lon
+wgs84_crs = "EPSG:4326"
 
 gdf_counties = gdf_counties.to_crs(wgs84_crs)
 gdf_BUA = gdf_BUA.to_crs(wgs84_crs)
@@ -72,86 +65,65 @@ gdf_highway = gdf_highway.to_crs(wgs84_crs)
 gdf_fires = gdf_fires.to_crs(wgs84_crs)
 
 # --------------------------------------------------
-# Define the Geographic Extent (Latitude/Longitude)
+# Define Geographic Extent
 # --------------------------------------------------
-xmin, ymin = -125.0, 36.0  # (Longitude, Latitude) - Adjust as per your region should you wish to move AOI
-xmax, ymax = -119.0, 41.0  # (Longitude, Latitude) - Adjust as per your region should you wish to move AOI
+xmin, ymin = -125.0, 36.0
+xmax, ymax = -119.0, 41.0
 
 # --------------------------------------------------
-# Create the Map Plot
+# Create Map Plot (No Marginalia)
 # --------------------------------------------------
 fig, ax = plt.subplots(figsize=(12, 10))
 ax.set_facecolor('none')
 
-# 1. Plot counties first
+# Plot counties
 gdf_counties.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=0.5)
 
-# 2. Plot Landsat RGB (with alpha channel for transparency) above counties
+# Plot Landsat imagery with alpha
 ax.imshow(
-    landsat_rgba,  # Use RGBA to include the transparency - A is the ALPHA without this the black still draws
+    landsat_rgba,
     extent=(float(xmin), float(xmax), float(ymin), float(ymax)),
     origin='upper'
 )
 
-# 3. Plot the other layers (BUA, highways, fires) above Landsat
+# Plot additional data layers
 gdf_BUA.plot(ax=ax, color='grey', alpha=0.5)
 gdf_highway.plot(ax=ax, color='green', linewidth=1.0)
 gdf_fires.plot(
     ax=ax,
     column='GIS_ACRES',
     cmap='OrRd',
-    legend=True,
+    legend=False,
     edgecolor='black',
     linewidth=0.5
 )
 
 # Set visible area
-ax.set_xlim([xmin, xmax])  # Longitude range
-ax.set_ylim([ymin, ymax])  # Latitude range
+ax.set_xlim([xmin, xmax])
+ax.set_ylim([ymin, ymax])
 
 # --------------------------------------------------
-# Add County Labels
+# Remove All Marginalia
 # --------------------------------------------------
-label_column = 'CDT_NAME_S'
-for _, row in gdf_counties.iterrows():
-    centroid = row.geometry.centroid
-    if xmin <= centroid.x <= xmax and ymin <= centroid.y <= ymax:
-        ax.text(
-            centroid.x, centroid.y,
-            str(row[label_column]),
-            fontsize=8, ha='center',
-            color='black', fontweight='bold'
-        )
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_xlabel("")
+ax.set_ylabel("")
+plt.title("")  # No title
+plt.tight_layout(pad=0)
 
 # --------------------------------------------------
-# Add Custom Legend
+# Export Clean PNG with Transparency
 # --------------------------------------------------
-legend_elements = [
-    mpatches.Patch(edgecolor='black', facecolor='none', label='Counties'),
-    mpatches.Patch(facecolor='grey', alpha=0.5, label='Urban Area'),
-    mpatches.Patch(facecolor='green', label='Highway'),
-    mpatches.Patch(facecolor='white', edgecolor='black', label='Fires (by acres)')
-]
-ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0))
-
-# Map title and axis labels
-plt.title("California Wildfires with Landsat Background (WGS84)", fontsize=16)
-plt.xlabel("Longitude")
-plt.ylabel("Latitude")
-plt.tight_layout()
-
-# --------------------------------------------------
-# Export Plot as PNG Image
-# --------------------------------------------------
-temp_image_path = "California_Wildfires_Landsat.png"
-fig.savefig(temp_image_path, dpi=300, bbox_inches='tight')
+temp_image_path = "California_Wildfires_Landsat_without_marginalia.png"
+fig.savefig(temp_image_path, dpi=300, bbox_inches='tight', pad_inches=0, transparent=True)
 display(IPImage(filename=temp_image_path))
 plt.close(fig)
 
 # --------------------------------------------------
 # Convert PNG to GeoTIFF with Georeferencing
 # --------------------------------------------------
-img = Image.open(temp_image_path).convert("RGBA")  # Use RGBA for transparency
+img = Image.open(temp_image_path).convert("RGBA")
 img_arr = np.array(img)
 height, width = img_arr.shape[:2]
 transform = from_bounds(xmin, ymin, xmax, ymax, width, height)
@@ -161,12 +133,12 @@ with rasterio.open(
         driver="GTiff",
         height=height,
         width=width,
-        count=4,  # 4 channels: RGBA
+        count=4,
         dtype=img_arr.dtype,
         crs=wgs84_crs,
         transform=transform
 ) as dst:
-    for i in range(4):  # Write 4 channels (RGBA)
+    for i in range(4):
         dst.write(img_arr[:, :, i], i + 1)
 
-print("✅ GeoTIFF saved as 'california_wildfires_landsat_map.tif'")
+print("GeoTIFF saved as 'california_wildfires_landsat_map.tif'")
