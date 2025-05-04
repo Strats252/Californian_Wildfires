@@ -134,11 +134,14 @@ A branch has been created to remove the marginalia from the outputs should the u
 
 ## TROUBLESHOOTING
 
-Please use the document attached in the repository to answer potential errors that may be faced.
+Please use the document attached in the repository https://github.com/Strats252/Californian_Wildfires/blob/main/Wildfire%20Proximity%20to%20Populated%20Areas%20and%20Infrastructure%20in%20California-Daniel%20Stratford%20B00992246.pdf  to answer potential errors that may be faced.
 
 ---
 
 ## AUTHOR
 
 Developed by **Daniel Stratford**  
+Student number: B00992246
+This program has been created for academic purposes only.
+
 For questions or issues please contact stratford-d1@ulster.ac.uk 
