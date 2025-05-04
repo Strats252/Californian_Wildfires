@@ -106,8 +106,8 @@ gdf_fires.plot(
 )
 
 # Set visible area
-ax.set_xlim([xmin, xmax])  # Longitude range
-ax.set_ylim([ymin, ymax])  # Latitude range
+ax.set_xlim(xmin, xmax)  # Longitude range
+ax.set_ylim(ymin, ymax)  # Latitude range
 
 # --------------------------------------------------
 # Add County Labels
