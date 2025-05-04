@@ -120,6 +120,17 @@ These can be used for reports, analysis, or imported into GIS software.
 This project is available under the [MIT License](LICENSE). This is license that allows users freedom to use, share and modify.
 
 ---
+## KNOWN ERRORS AND ISSUES
+
+It is known that the Tif output changes the symbology of the fires and presents itself different to the .Png file. This is something that hasn't been able to be corrected. 
+
+---
+
+## BRANCHES
+
+A branch has been created to remove the marginalia from the outputs should the user wish to remove it for a better display in GIS software.
+
+---
 
 ## TROUBLESHOOTING
 
