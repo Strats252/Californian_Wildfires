@@ -1,5 +1,5 @@
 # --------------------------------------------------
-# Import Required Libraries
+# Import
 # --------------------------------------------------
 import geopandas as gpd
 import matplotlib.pyplot as plt
