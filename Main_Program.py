@@ -39,7 +39,7 @@ def normalize(array, gamma=1.2):
 landsat_rgb = np.dstack([normalize(landsat_rgb[:, :, i]) for i in range(3)])
 
 # --------------------------------------------------
-# Mask Black Background (Make Transparent)
+# Mask Black Background (Make Transparent) without this there will a black background to the imagery
 # --------------------------------------------------
 # Create an alpha channel: where all RGB values are near 0, make it transparent
 black_mask = np.all(landsat_rgb <= 5, axis=2)  # Tolerance of 5
@@ -51,10 +51,10 @@ landsat_rgba = np.dstack((landsat_rgb, alpha_channel))
 # --------------------------------------------------
 # Load Spatial Data (Shapefiles)
 # --------------------------------------------------
-counties_path = "Base_Data/California_County_Boundaries.shp"
-BUA_path = "Base_Data/Urban_Area.shp"
-highway_path = "Base_Data/State_Highway.shp"
-fires_path = "Base_Data/fires_50000.shp"
+counties_path = "Base_Data/California_County_Boundaries.shp" #If using data stored locally import full file path including drive letter.
+BUA_path = "Base_Data/Urban_Area.shp" #If using data stored locally import full file path including drive letter.
+highway_path = "Base_Data/State_Highway.shp" #If using data stored locally import full file path including drive letter.
+fires_path = "Base_Data/fires_50000.shp" #If using data stored locally import full file path including drive letter.
 
 gdf_counties = gpd.read_file(counties_path)
 gdf_BUA = gpd.read_file(BUA_path)
@@ -78,7 +78,7 @@ xmin, ymin = -125.0, 36.0  # (Longitude, Latitude) - Adjust as per your region s
 xmax, ymax = -119.0, 41.0  # (Longitude, Latitude) - Adjust as per your region should you wish to move AOI
 
 # --------------------------------------------------
-# Create the Map Plot
+# Create the Map Plot, order can be amended depending on display preferences
 # --------------------------------------------------
 fig, ax = plt.subplots(figsize=(12, 10))
 ax.set_facecolor('none')
@@ -93,12 +93,12 @@ ax.imshow(
     origin='upper'
 )
 
-# 3. Plot the other layers (BUA, highways, fires) above Landsat
+# 3. Plot the other layers (BUA, highways, fires) above Landsat to ensure correct layer hierarchy
 gdf_BUA.plot(ax=ax, color='grey', alpha=0.5)
 gdf_highway.plot(ax=ax, color='green', linewidth=1.0)
 gdf_fires.plot(
     ax=ax,
-    column='GIS_ACRES',
+    column='GIS_ACRES', #This column is found within the attributes of the data
     cmap='OrRd',
     legend=True,
     edgecolor='black',
@@ -112,7 +112,7 @@ ax.set_ylim([ymin, ymax])  # Latitude range
 # --------------------------------------------------
 # Add County Labels
 # --------------------------------------------------
-label_column = 'CDT_NAME_S'
+label_column = 'CDT_NAME_S' #This column is found within the attributes of the data
 for _, row in gdf_counties.iterrows():
     centroid = row.geometry.centroid
     if xmin <= centroid.x <= xmax and ymin <= centroid.y <= ymax:
@@ -127,17 +127,17 @@ for _, row in gdf_counties.iterrows():
 # Add Custom Legend
 # --------------------------------------------------
 legend_elements = [
-    mpatches.Patch(edgecolor='black', facecolor='none', label='Counties'),
-    mpatches.Patch(facecolor='grey', alpha=0.5, label='Urban Area'),
-    mpatches.Patch(facecolor='green', label='Highway'),
-    mpatches.Patch(facecolor='white', edgecolor='black', label='Fires (by acres)')
+    mpatches.Patch(edgecolor='black', facecolor='none', label='Counties'), # Ensure that this matches colour plots found at line 81 onwards
+    mpatches.Patch(facecolor='grey', alpha=0.5, label='Urban Area'), # Ensure that this matches colour plots found at line 81 onwards
+    mpatches.Patch(facecolor='green', label='Highway'), # Ensure that this matches colour plots found at line 81 onwards
+    mpatches.Patch(facecolor='white', edgecolor='black', label='Fires (by acres)') # Ensure that this matches colour plots found at line 81 onwards
 ]
-ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0))
+ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0)) #This is location of where the legend will be lcocated
 
 # Map title and axis labels
-plt.title("California Wildfires with Landsat Background (WGS84)", fontsize=16)
-plt.xlabel("Longitude")
-plt.ylabel("Latitude")
+plt.title("California Wildfires with Landsat Background (WGS84)", fontsize=16) #Change the name of the map
+plt.xlabel("Longitude") #X axis label name
+plt.ylabel("Latitude") #Y axis label name
 plt.tight_layout()
 
 # --------------------------------------------------
@@ -166,7 +166,7 @@ with rasterio.open(
         crs=wgs84_crs,
         transform=transform
 ) as dst:
-    for i in range(4):  # Write 4 channels (RGBA)
+    for i in range(4):  # Write 4 channels (RGBA) Alpha taken into account to ensure that mask works
         dst.write(img_arr[:, :, i], i + 1)
 
-print("✅ GeoTIFF saved as 'california_wildfires_landsat_map.tif'")
+print("GeoTIFF saved as 'california_wildfires_landsat_map.tif'")
